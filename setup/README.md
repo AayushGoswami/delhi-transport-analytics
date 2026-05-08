@@ -23,26 +23,28 @@ to arrival time analytics.
 
 ## Cloud Architecture
 
-Delhi GTFS Data (otd.delhi.gov.in)\
-│\
-│  Manual download\
-▼\
-AWS S3 Bucket (delhi-transport-gtfs, ap-south-1)\
-├── routes.txt\
-├── stops.txt\
-├── trips.txt\
-├── stop_times.txt\
-└── calendar.txt\
-│\
-│  boto3 (Python AWS SDK)\
-▼\
-Python Pipeline (ingestion)\
-├── load_reference_data.py   ← routes, stops, trips, calendar\
-└── load_arrivals.py         ← bus_arrivals simulation\
-│\
-│  psycopg2 batch INSERT\
-▼\
-TimescaleDB Cloud (tsdb, ap-south-1)\
+```
+Delhi GTFS Data (otd.delhi.gov.in)
+│
+│  Manual download
+▼
+AWS S3 Bucket (delhi-transport-gtfs, ap-south-1)
+├── routes.txt
+├── stops.txt
+├── trips.txt
+├── stop_times.txt
+└── calendar.txt
+│
+│  boto3 (Python AWS SDK)
+▼
+Python Pipeline (ingestion)
+├── load_reference_data.py   ← routes, stops, trips, calendar
+└── load_arrivals.py         ← bus_arrivals simulation
+│
+│  psycopg2 batch INSERT
+▼
+TimescaleDB Cloud (tsdb, ap-south-1)
+```
 
 ---
 
