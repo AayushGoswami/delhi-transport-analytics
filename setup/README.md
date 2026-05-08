@@ -1,48 +1,3 @@
-<!-- # Setup - Schema Design
-
-## Database
-**TimescaleDB Cloud** - Service: delhi-transport | PostgreSQL 18.3 + TimescaleDB 2.26.4 | Region: AWS ap-south-1 (Mumbai)
-
-## Data Source
-__Delhi GTFS Static Data__ - [otd.delhi.gov.in](otd.delhi.gov.in) | Files used: `routes.txt`, `stops.txt`, `trips.txt`, `stop_times.txt`, `calendar.txt`
-
-## Tables
-
-### `routes`
-DTC bus routes across Delhi.
-Primary key: `route_id` (text - GTFS standard)
-
-### `stops`
-All bus stops in Delhi with GPS coordinates.
-Primary key: `stop_id`
-Coordinates stored as NUMERIC(10,6) for precision
-
-### `trips`
-Individual scheduled trips per route.
-References routes via `route_id` FK.
-
-### `bus_arrivals` (_Hypertable_)
-Core time-series table - one row per bus arrival event.
-Partitioned by `scheduled_time`.\
-`delay_seconds`: difference between actual and scheduled arrival.\
-`is_delayed`: generated boolean column - true if delay > 300 seconds (5 minutes).
-
-## Design Decisions
-- `bus_arrivals` uses `TIMESTAMPTZ` - timezone-aware for IST timestamps
-- `is_delayed` is a GENERATED ALWAYS AS column - computed automatically,
-  never manually inserted, always consistent
-- Composite indexes on (`route_id`, `scheduled_time` DESC) and
-  (`stop_id`, `scheduled_time` DESC) - matches most common query patterns
-- Partial index on `is_delayed` = true - only indexes delayed arrivals,
-  smaller and faster for delay-specific queries
-
-## Row Counts After Ingestion
-- `routes`: *2403*
-- `stops`: *10559*
-- `trips`: *89393*
-- `bus_arrivals`: *500000* -->
-
-
 # Setup - Schema Design & Project Architecture
 
 ## Database
@@ -173,7 +128,7 @@ Partitioned by `scheduled_time` into TimescaleDB chunks.
 | `compress_segmentby` | `route_id` | Most queries filter by route |
 | `compress_orderby` | `scheduled_time DESC` | Optimises recent-data queries |
 | Compression policy | Chunks older than 7 days | Automatic historical compression |
-| Average storage savings | [fill after Day 4] % | Measured from chunk_compression_stats |
+| Average storage savings | 88 % | Measured from chunk_compression_stats |
 
 ---
 
@@ -203,7 +158,7 @@ consistent with standard transit performance benchmarks.
 | `routes` | 2,403 |
 | `stops` | 10,559 |
 | `trips` | 89,393 |
-| `calendar` | (fill in) |
+| `calendar` | 1 |
 | `bus_arrivals` | 500,000 |
 
 ---
